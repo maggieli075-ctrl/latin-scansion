@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="latin-scansion.css">
+        <script src="latin-scansion.js" defer></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;600&display=swap" rel="stylesheet">
+
+    </head>
+    <body>
+        <section id="header">
+            <h1>Latin Scanner</h1>
+            <p>Choose which meter your text is in. Please separate the lines according to the original text.</p>
+        </section>
+
+        <section id="modes">
+            <button id="dactylic-hexameter">Dactylic Hexameter</button>
+            <button id="elegaic-couplets">Elegaic Couplets</button>
+        </section>
+
+        <section id="main">
+            <div id="input">
+                <textarea id="paste-text" rows="10" placeholder="Arma virumque cano..."></textarea>
+
+                <button id="scan-button">Scan</button>
+            </div>
+
+            <div id="output"><p>Scanned text will appear here</p></div>
+        </section>
+
+    </body>
+</html>
