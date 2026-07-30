@@ -4,7 +4,7 @@ const vowels = "aeiouy";
 
 function removePunc(line)
 {
-    const punc = ".,;:!?()\"'";
+    const punc = ".,;:!?()\"'—";
     let newLine = "";
 
     for (const letter of line)
