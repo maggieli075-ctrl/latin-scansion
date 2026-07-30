@@ -207,7 +207,7 @@ function nextChar(line, index, n)
     return undefined;
 }
 
-function shortLong(line, arr)
+function shortLong(line, arr, lastVowel)
 {
     arr[arr.length - 1].mark = "anceps";
     arr[arr.length - 2].mark = "long";
@@ -215,7 +215,7 @@ function shortLong(line, arr)
     arr[arr.length - 4].mark = "short";
     arr[arr.length - 5].mark = "long";
 
-    for (let i = 0; i < arr.length - 5; i++)
+    for (let i = 0; i < arr.length - lastVowel; i++)
     {
         let current = arr[i];
         if (current.dipthong === true)
@@ -334,7 +334,7 @@ function checkUnknown(line, arr)
         {
             pattern = ["S", "S", "S", "S"];
 
-            pattern[j] = "D"
+            pattern[j] = "D";
             let i = 0;
             let indexMark = 0;
             let matches = true;
@@ -615,10 +615,145 @@ function dactylicHexameter(line, index)
     const noPunc = removePunc(line);
     const noElis = removeElision(noPunc.new);
     const vowelSplit = splitByVowel(noPunc.new, noElis.start, noElis.end);
-    const first = shortLong(noPunc.new, vowelSplit);
+    const first = shortLong(noPunc.new, vowelSplit, 5);
+    vowelSplit[vowelSplit.length - 1].mark = "anceps";
+    vowelSplit[vowelSplit.length - 2].mark = "long";
+    vowelSplit[vowelSplit.length - 3].mark = "short";
+    vowelSplit[vowelSplit.length - 4].mark = "short";
+    vowelSplit[vowelSplit.length - 5].mark = "long";
     const last = checkUnknown(noPunc.new, first);
 
     return returnScanned(last, noPunc.old, noElis.start, noElis.end);
+}
+
+function checkUnknownElegaic(line, arr)
+{
+    const mixes = [
+        {nuclei: 4, dactyls: 0, spondees: 2},
+        {nuclei: 5, dactyls: 1, spondees: 1},
+        {nuclei: 6, dactyls: 2, spondees: 0}
+    ]
+
+    let mix = {};
+
+    let nuclei = arr.length - 8;
+
+    // sets pattern with long?long to long
+    for (let i = 0; i < arr.length - 8; i++)
+    {
+        let current = arr[i];
+        let third = arr[i + 2];
+
+        if (current.mark === "long" && third.mark === "long")
+        {
+            arr[i + 1].mark = "long";
+        }
+    }
+
+    //calculates how many spondeeds/dactyls are in the first two feet
+    for (let i = 0; i < mixes.length; i++)
+    {
+        if (mixes[i].nuclei === nuclei)
+        {
+            mix = mixes[i];
+        }
+    }
+
+    // test different cases
+
+    // all spondees
+    if (mix.dactyls === 0)
+    {
+        let feet = [];
+        for (let i = 0; i < arr.length - 8; i++)
+        {
+            arr[i].mark = "long";
+        }
+
+        return {line: line, arr: arr, pattern: ["S", "S", "L", "D", "D"] };
+    }
+
+    // all dactyls
+    else if (mix.dactyls === 2)
+    {
+        for (let i = 0; i < arr.length - 8; i+= 3)
+        {
+            arr[i].mark = "long";
+            arr[i + 1].mark = "short";
+            arr[i + 2].mark = "short";
+        }
+
+        return {line: line, arr: arr, pattern: ["D", "D", "L", "D", "D"]};
+    }
+
+    // one dactyl
+
+    else if (mix.dactyls === 1)
+    {
+        let pattern = ["S", "S"];
+
+        for (let j = 0; j < pattern.length; j++)
+        {
+            pattern = ["S", "S"];
+
+            pattern[j] = "D";
+            let i = 0;
+            let indexMark = 0;
+            let matches = true;
+
+            while (matches && indexMark < pattern.length)
+            {
+                if (pattern[indexMark] === "D")
+                {
+                    if (arr[i+1].mark === "long" || arr[i+2].mark === "long")
+                    {
+                        matches = false;
+                    }
+
+                    i += 3;
+                }
+
+                else if (pattern[indexMark] === "S")
+                {
+                    i += 2;
+                }
+
+                indexMark++;
+            }
+
+            i = 0;
+            indexMark = 0;
+
+            if (matches === true)
+            {
+                while (indexMark < pattern.length)
+                {
+                    if (pattern[indexMark ] === "D")
+                    {
+                        arr[i].mark = "long";
+                        arr[i+1].mark ="short";
+                        arr[i + 2].mark = "short";
+
+                        i += 3;
+                    }
+
+                    else if (pattern[indexMark] === "S")
+                    {
+                        arr[i].mark = "long";
+                        arr[i + 1].mark = "long";
+
+                        i += 2;
+                    }
+
+                    indexMark++;
+                }
+
+                pattern.push("L", "D", "D");
+
+                return {line: line, arr: arr, pattern: pattern};
+            }
+        }
+    }
 }
 
 function elegaicCouplet(line, index)
@@ -633,29 +768,20 @@ function elegaicCouplet(line, index)
         const noPunc = removePunc(line);
         const noElis = removeElision(noPunc.new);
         const vowels = splitByVowel(noPunc.new, noElis.start, noElis.end);
+        const first = shortLong(noPunc.new, vowels, 8);
 
-        const long = [0, 3, 6, 7, 10];
-        const short = [1, 2, 4, 5, 8, 9, 11, 12];
+        vowels[vowels.length - 1].mark = "anceps";
+        vowels[vowels.length - 2].mark = "short";
+        vowels[vowels.length - 3].mark = "short";
+        vowels[vowels.length - 4].mark = "long";
+        vowels[vowels.length - 5].mark = "short";
+        vowels[vowels.length - 6].mark = "short";
+        vowels[vowels.length - 7].mark = "long";
+        vowels[vowels.length - 8].mark = "long";
 
-        for (let i = 0; i < vowels.length; i++)
-        {
-            if (long.includes(i))
-            {
-                vowels[i].mark = "long";
-            }
+        const last = checkUnknownElegaic(noPunc.new, first);
 
-            else if (short.includes(i))
-            {
-                vowels[i].mark = "short";
-            }
-
-            else
-            {
-                vowels[i].mark = "anceps";
-            }
-        }
-
-        return returnScanned({line: line, arr: vowels, pattern: ["D","D", "L", "D", "D"]}, noPunc.old, noElis.start, noElis.end);
+        return returnScanned(last, noPunc.old, noElis.start, noElis.end);
     }
 };
 
@@ -668,11 +794,15 @@ let mode = "";
 
 dactylic.addEventListener("click", function()
 {
+    dactylic.classList.add("active");
+    elegaic.classList.remove("active");
     mode = dactylicHexameter; // check if valid
 });
 
 elegaic.addEventListener("click", function()
 {
+    elegaic.classList.add("active");
+    dactylic.classList.remove("active");
     mode = elegaicCouplet;
 });
 
