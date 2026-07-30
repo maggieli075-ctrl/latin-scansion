@@ -808,6 +808,10 @@ elegaic.addEventListener("click", function()
 
 scanButton.addEventListener("click", function()
 {
+    if (mode = "")
+    {
+        output.textContent = "Please select a meter above.";
+    }
     const lines = text.value.split(/\r?\n/);
 
     output.replaceChildren();
