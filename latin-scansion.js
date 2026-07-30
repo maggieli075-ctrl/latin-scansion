@@ -572,21 +572,21 @@ function returnScanned(info, ogLine, startE, endE)
             vowelIndex++;
 
 
-            if (patternIndex < 5 && info.pattern[patternIndex] === "D" && footIndexCurrent === 3)
+            if (patternIndex < info.pattern.length && info.pattern[patternIndex] === "D" && footIndexCurrent === 3)
             {
                 footIndexCurrent = 0;
                 patternIndex++;
                 meter += "| ";
             }
 
-            else if (patternIndex < 5 && info.pattern[patternIndex] === "S" && footIndexCurrent === 2)
+            else if (patternIndex < info.pattern.length && info.pattern[patternIndex] === "S" && footIndexCurrent === 2)
             {
                 footIndexCurrent = 0;
                 patternIndex++;
                 meter += "| ";
             }
             
-            else if (patternIndex < 5 && info.pattern[patternIndex] === "L" && footIndexCurrent === 1)
+            else if (patternIndex < info.pattern.length && info.pattern[patternIndex] === "L" && footIndexCurrent === 1)
             {
                 footIndexCurrent = 0;
                 patternIndex++;
